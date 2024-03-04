@@ -7,6 +7,10 @@
     <groupId>com.ezreal</groupId>
     <artifactId>ezreal-mybatis</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>ezreal-mybatis-01</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
