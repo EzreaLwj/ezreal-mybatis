@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>ezreal-mybatis-01</module>
+        <module>ezreal-mybatis-02</module>
     </modules>
 
     <properties>
