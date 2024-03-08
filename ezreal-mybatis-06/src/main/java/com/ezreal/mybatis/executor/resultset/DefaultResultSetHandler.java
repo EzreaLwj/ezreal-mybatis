@@ -1,13 +1,11 @@
-package com.ezreal.mybatis.session.defaults;
+package com.ezreal.mybatis.executor.resultset;
 
 import com.ezreal.mybatis.executor.Executor;
 import com.ezreal.mybatis.mapping.BoundSql;
-import com.ezreal.mybatis.mapping.Environment;
 import com.ezreal.mybatis.mapping.MappedStatement;
-import com.ezreal.mybatis.session.Configuration;
-import com.ezreal.mybatis.session.SqlSession;
 
 import java.lang.reflect.Method;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,36 +13,23 @@ import java.util.List;
 
 /**
  * @author Ezreal
- * @Date 2024/3/4
+ * @Date 2024/3/8
  */
-public class DefaultSqlSession implements SqlSession {
+public class DefaultResultSetHandler implements ResultSetHandler {
 
-    private Configuration configuration;
+    private final BoundSql boundSql;
 
-    private Executor executor;
-
-    public DefaultSqlSession(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-    public DefaultSqlSession(Configuration configuration, Executor executor) {
-        this.configuration = configuration;
-        this.executor = executor;
+    public DefaultResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
+        this.boundSql = boundSql;
     }
 
     @Override
-    public <T> T selectOne(String statement) {
-        return (T) ("你被代理了！" + statement);
-    }
-
-    @Override
-    public <T> T selectOne(String statement, Object parameter) {
+    public <T> List<T> handleResultSets(Statement statement) throws SQLException {
+        ResultSet resultSet = statement.getResultSet();
 
         try {
-            MappedStatement mappedStatement = configuration.getMappedStatement(statement);
-            List<T> result = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getBoundSql());
-            return result.get(0);
-        } catch (Exception e) {
+            return resultSet2Obj(resultSet, Class.forName(boundSql.getResultType()));
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
         }
@@ -76,16 +61,5 @@ public class DefaultSqlSession implements SqlSession {
             e.printStackTrace();
         }
         return list;
-    }
-
-
-    @Override
-    public <T> T getMapper(Class<T> type) {
-        return configuration.getMapper(type, this);
-    }
-
-    @Override
-    public Configuration getConfiguration() {
-        return configuration;
     }
 }

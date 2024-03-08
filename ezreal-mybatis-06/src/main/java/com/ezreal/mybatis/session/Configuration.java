@@ -4,16 +4,26 @@ import com.ezreal.mybatis.binding.MapperRegistry;
 import com.ezreal.mybatis.datasource.druid.DruidDataSourceFactory;
 import com.ezreal.mybatis.datasource.pooled.PooledDataSourceFactory;
 import com.ezreal.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
+import com.ezreal.mybatis.executor.Executor;
+import com.ezreal.mybatis.executor.SimpleExecutor;
+import com.ezreal.mybatis.executor.resultset.DefaultResultSetHandler;
+import com.ezreal.mybatis.executor.resultset.ResultSetHandler;
+import com.ezreal.mybatis.executor.statement.PreparedStatementHandler;
+import com.ezreal.mybatis.executor.statement.StatementHandler;
+import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.Environment;
 import com.ezreal.mybatis.mapping.MappedStatement;
+import com.ezreal.mybatis.transaction.Transaction;
 import com.ezreal.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.ezreal.mybatis.type.TypeAliasRegistry;
 
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Mybatis配置类
+ *
  * @author Ezreal
  * @Date 2024/3/5
  */
@@ -100,5 +110,41 @@ public class Configuration {
 
     public void setMappedStatements(Map<String, MappedStatement> mappedStatements) {
         this.mappedStatements = mappedStatements;
+    }
+
+    /**
+     * 创建执行器
+     *
+     * @param transaction 事务执行器
+     * @return
+     */
+    public Executor newExecutor(Transaction transaction) {
+        return new SimpleExecutor(this, transaction);
+    }
+
+    /**
+     * 创建结果集处理器
+     *
+     * @param executor        执行器
+     * @param mappedStatement 语句映射
+     * @param boundSql        绑定SQL
+     * @return
+     */
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
+        return new DefaultResultSetHandler(executor, mappedStatement, boundSql);
+    }
+
+    /**
+     * 创建语句映射处理器
+     *
+     * @param executor
+     * @param mappedStatement
+     * @param parameter
+     * @param resultHandler
+     * @param boundSql
+     * @return
+     */
+    public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
+        return new PreparedStatementHandler(executor, mappedStatement, parameter, resultHandler, boundSql);
     }
 }

@@ -54,7 +54,7 @@ public class ApiTest {
 
         // 3.调用方法
         User user = userDao.queryUserInfoById(1L);
-        log.info("调用结果为：{}", user);
+        log.info("调用结果为：{}", JSON.toJSONString(user));
     }
 
     @Test
