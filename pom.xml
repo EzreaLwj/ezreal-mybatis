@@ -16,6 +16,7 @@
         <module>ezreal-mybatis-05</module>
         <module>ezreal-mybatis-06</module>
         <module>ezreal-mybatis-07</module>
+        <module>ezreal-mybatis-08</module>
     </modules>
 
     <properties>
