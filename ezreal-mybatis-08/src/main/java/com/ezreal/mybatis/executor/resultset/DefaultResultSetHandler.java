@@ -18,8 +18,11 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
     private final BoundSql boundSql;
 
+    private MappedStatement mappedStatement;
+
     public DefaultResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
         this.boundSql = boundSql;
+        this.mappedStatement = mappedStatement;
     }
 
     @Override
@@ -27,8 +30,8 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         ResultSet resultSet = statement.getResultSet();
 
         try {
-            return resultSet2Obj(resultSet, Class.forName(boundSql.getResultType()));
-        } catch (ClassNotFoundException e) {
+            return resultSet2Obj(resultSet, mappedStatement.getResultType());
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

@@ -15,11 +15,6 @@ public class MappedStatement {
     private String id;
 
     /**
-     * sql
-     */
-    private BoundSql boundSql;
-
-    /**
      * sql语句类型
      */
     private SqlCommandType sqlCommandType;
@@ -29,6 +24,10 @@ public class MappedStatement {
      */
     private Configuration configuration;
 
+    private SqlSource sqlSource;
+
+    Class<?> resultType;
+
     public MappedStatement() {
     }
 
@@ -36,11 +35,12 @@ public class MappedStatement {
 
         private MappedStatement mappedStatement = new MappedStatement();
 
-        public Builder(Configuration configuration, String id, SqlCommandType sqlCommandType, BoundSql boundSql) {
+        public Builder(Configuration configuration, String id, SqlCommandType sqlCommandType, SqlSource sqlSource, Class<?> resultType) {
             mappedStatement.configuration = configuration;
             mappedStatement.id = id;
             mappedStatement.sqlCommandType = sqlCommandType;
-            mappedStatement.boundSql = boundSql;
+            mappedStatement.sqlSource = sqlSource;
+            mappedStatement.resultType = resultType;
         }
 
         public MappedStatement build() {
@@ -59,14 +59,6 @@ public class MappedStatement {
         this.id = id;
     }
 
-    public BoundSql getBoundSql() {
-        return boundSql;
-    }
-
-    public void setBoundSql(BoundSql boundSql) {
-        this.boundSql = boundSql;
-    }
-
     public SqlCommandType getSqlCommandType() {
         return sqlCommandType;
     }
@@ -81,5 +73,21 @@ public class MappedStatement {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public SqlSource getSqlSource() {
+        return sqlSource;
+    }
+
+    public void setSqlSource(SqlSource sqlSource) {
+        this.sqlSource = sqlSource;
+    }
+
+    public Class<?> getResultType() {
+        return resultType;
+    }
+
+    public void setResultType(Class<?> resultType) {
+        this.resultType = resultType;
     }
 }

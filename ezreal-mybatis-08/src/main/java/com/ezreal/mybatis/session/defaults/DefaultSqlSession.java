@@ -42,7 +42,7 @@ public class DefaultSqlSession implements SqlSession {
 
         try {
             MappedStatement mappedStatement = configuration.getMappedStatement(statement);
-            List<T> result = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getBoundSql());
+            List<T> result = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
             return result.get(0);
         } catch (Exception e) {
             e.printStackTrace();

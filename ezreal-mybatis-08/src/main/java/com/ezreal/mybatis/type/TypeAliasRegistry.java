@@ -1,10 +1,14 @@
 package com.ezreal.mybatis.type;
 
+import com.ezreal.mybatis.io.Resources;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 /**
+ * 类型别名注册机
+ *
  * @author Ezreal
  * @Date 2024/3/6
  */
@@ -33,7 +37,21 @@ public class TypeAliasRegistry {
     }
 
     public <T> Class<T> resolveAlias(String alias) {
-        alias = alias.toLowerCase(Locale.ENGLISH);
-        return (Class<T>) TYPE_ALIASES.get(alias);
+        try {
+            if (alias == null) {
+                return null;
+            }
+            String key = alias.toLowerCase(Locale.ENGLISH);
+            Class<T> value;
+            if (TYPE_ALIASES.containsKey(key)) {
+                value = (Class<T>) TYPE_ALIASES.get(key);
+            } else {
+                value = (Class<T>) Resources.classForName(alias);
+            }
+            return value;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Could not resolve type alias '" + alias + "'.  Cause: " + e, e);
+        }
+
     }
 }
