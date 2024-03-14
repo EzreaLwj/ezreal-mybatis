@@ -9,7 +9,7 @@ import java.util.Map;
  * @author Ezreal
  * @Date 2024/3/12
  */
-public class LanguageDriverRegistry  {
+public class LanguageDriverRegistry {
 
     private final Map<Class<?>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<>();
 
@@ -46,5 +46,9 @@ public class LanguageDriverRegistry  {
     public void setDefaultDriverClass(Class<?> defaultDriverClass) {
         this.defaultDriverClass = defaultDriverClass;
         register(defaultDriverClass);
+    }
+
+    public LanguageDriver getDefaultDriver() {
+        return getDriver(getDefaultDriverClass());
     }
 }

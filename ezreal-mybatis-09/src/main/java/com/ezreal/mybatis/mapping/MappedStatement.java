@@ -1,5 +1,6 @@
 package com.ezreal.mybatis.mapping;
 
+import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.session.Configuration;
 
 /**
@@ -28,6 +29,8 @@ public class MappedStatement {
 
     Class<?> resultType;
 
+    private LanguageDriver lang;
+
     public MappedStatement() {
     }
 
@@ -41,6 +44,7 @@ public class MappedStatement {
             mappedStatement.sqlCommandType = sqlCommandType;
             mappedStatement.sqlSource = sqlSource;
             mappedStatement.resultType = resultType;
+            mappedStatement.lang = configuration.getDefaultScriptingLanguageInstance();
         }
 
         public MappedStatement build() {
@@ -89,5 +93,9 @@ public class MappedStatement {
 
     public void setResultType(Class<?> resultType) {
         this.resultType = resultType;
+    }
+
+    public LanguageDriver getLang() {
+        return lang;
     }
 }

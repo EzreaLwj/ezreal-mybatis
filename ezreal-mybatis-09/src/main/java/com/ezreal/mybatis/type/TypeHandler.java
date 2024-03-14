@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * 类型处理器
+ * 类型处理器接口
  * @author Ezreal
  * @Date 2024/3/12
  */

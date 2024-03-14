@@ -6,6 +6,7 @@ import com.ezreal.mybatis.datasource.pooled.PooledDataSourceFactory;
 import com.ezreal.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
 import com.ezreal.mybatis.executor.Executor;
 import com.ezreal.mybatis.executor.SimpleExecutor;
+import com.ezreal.mybatis.executor.parameter.ParameterHandler;
 import com.ezreal.mybatis.executor.resultset.DefaultResultSetHandler;
 import com.ezreal.mybatis.executor.resultset.ResultSetHandler;
 import com.ezreal.mybatis.executor.statement.PreparedStatementHandler;
@@ -18,6 +19,7 @@ import com.ezreal.mybatis.reflection.factory.DefaultObjectFactory;
 import com.ezreal.mybatis.reflection.factory.ObjectFactory;
 import com.ezreal.mybatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import com.ezreal.mybatis.reflection.wrapper.ObjectWrapperFactory;
+import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.scripting.LanguageDriverRegistry;
 import com.ezreal.mybatis.scripting.xmltags.XMLLanguageDriver;
 import com.ezreal.mybatis.transaction.Transaction;
@@ -198,5 +200,14 @@ public class Configuration {
 
     public LanguageDriverRegistry getLanguageRegistry() {
         return languageRegistry;
+    }
+
+    public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+        ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+        return parameterHandler;
+    }
+
+    public LanguageDriver getDefaultScriptingLanguageInstance() {
+        return languageRegistry.getDefaultDriver();
     }
 }

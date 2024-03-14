@@ -1,6 +1,7 @@
 package com.ezreal.mybatis.executor.statement;
 
 import com.ezreal.mybatis.executor.Executor;
+import com.ezreal.mybatis.executor.parameter.ParameterHandler;
 import com.ezreal.mybatis.executor.resultset.ResultSetHandler;
 import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.MappedStatement;
@@ -29,6 +30,8 @@ public abstract class BaseStatementHandler implements StatementHandler {
 
     protected final ResultSetHandler resultSetHandler;
 
+    protected final ParameterHandler parameterHandler;
+
     public BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
         this.executor = executor;
         this.mappedStatement = mappedStatement;
@@ -36,6 +39,7 @@ public abstract class BaseStatementHandler implements StatementHandler {
         this.boundSql = boundSql;
         this.configuration = mappedStatement.getConfiguration();
         this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, boundSql);
+        this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
     }
 
     @Override

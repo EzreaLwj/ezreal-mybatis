@@ -1,11 +1,15 @@
 package com.ezreal.mybatis.builder;
 
+import com.alibaba.fastjson.JSON;
 import com.ezreal.mybatis.mapping.ParameterMapping;
 import com.ezreal.mybatis.mapping.SqlSource;
 import com.ezreal.mybatis.parsing.GenericTokenParser;
 import com.ezreal.mybatis.parsing.TokenHandler;
+import com.ezreal.mybatis.reflection.MetaClass;
 import com.ezreal.mybatis.reflection.MetaObject;
 import com.ezreal.mybatis.session.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +40,8 @@ public class SqlSourceBuilder extends BaseBuilder {
 
     private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
+        private Logger logger = LoggerFactory.getLogger(SqlSourceBuilder.class);
+
         private List<ParameterMapping> parameterMappings = new ArrayList<>();
 
         private Class<?> parameterType;
@@ -63,7 +69,20 @@ public class SqlSourceBuilder extends BaseBuilder {
             Map<String, String> propertiesMap = new ParameterExpression(content);
             // 解析favouriteSection
             String property = propertiesMap.get("property");
-            Class<?> propertyType = parameterType;
+            Class<?> propertyType;
+            if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
+                propertyType = parameterType;
+            } else if (property != null) {
+                MetaClass metaClass = MetaClass.forClass(parameterType);
+                if (metaClass.hasSetter(property)) {
+                    propertyType = metaClass.getGetterType(property);
+                } else {
+                    propertyType = Object.class;
+                }
+            } else {
+                propertyType = Object.class;
+            }
+            logger.info("构建参数映射 property：{} propertyType：{}", property, propertyType);
             ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
             return builder.build();
         }
