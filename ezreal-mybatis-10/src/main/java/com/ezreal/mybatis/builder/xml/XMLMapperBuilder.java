@@ -1,6 +1,7 @@
 package com.ezreal.mybatis.builder.xml;
 
 import com.ezreal.mybatis.builder.BaseBuilder;
+import com.ezreal.mybatis.builder.MapperBuilderAssistant;
 import com.ezreal.mybatis.io.Resources;
 import com.ezreal.mybatis.session.Configuration;
 import org.dom4j.Document;
@@ -25,6 +26,8 @@ public class XMLMapperBuilder extends BaseBuilder {
 
     private String currentNameSpace;
 
+    private MapperBuilderAssistant builderAssistant;
+
     public XMLMapperBuilder(InputStream inputStream, Configuration configuration, String resource) throws DocumentException {
         this(new SAXReader().read(inputStream), configuration, resource);
     }
@@ -32,6 +35,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     public XMLMapperBuilder(Document document, Configuration configuration, String resource) {
         super(configuration);
         this.element = document.getRootElement();
+        this.builderAssistant = new MapperBuilderAssistant(configuration, resource);
         this.resource = resource;
     }
 
@@ -58,17 +62,19 @@ public class XMLMapperBuilder extends BaseBuilder {
             throw new RuntimeException("Mapper's namespace cannot be empty");
         }
 
+        builderAssistant.setCurrentNameSpace(currentNameSpace);
         // 2.配置select|insert|update|delete
         buildStatementFromContext(element.elements("select"));
     }
 
     /**
      * 解析配置中的SQL标签
+     *
      * @param list
      */
     private void buildStatementFromContext(List<Element> list) {
         for (Element element : list) {
-            XMLStatementBuilder statementBuilder = new XMLStatementBuilder(configuration, element, currentNameSpace);
+            XMLStatementBuilder statementBuilder = new XMLStatementBuilder(configuration, builderAssistant, element);
             statementBuilder.parseStatementNode();
         }
     }

@@ -5,6 +5,7 @@ import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.session.Configuration;
 import com.ezreal.mybatis.session.ResultHandler;
+import com.ezreal.mybatis.session.RowBounds;
 import com.ezreal.mybatis.transaction.Transaction;
 
 import java.sql.Connection;
@@ -25,14 +26,14 @@ public class SimpleExecutor extends BaseExecutor {
     }
 
     @Override
-    protected <E> List<E> doQuery(MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
+    protected <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
 
         try {
             // 实例化连接
             Connection connection = transaction.getConnection();
 
             // 参数化创建语句处理器
-            PreparedStatementHandler preparedStatementHandler = (PreparedStatementHandler) configuration.newStatementHandler(this, ms, parameter, resultHandler, boundSql);
+            PreparedStatementHandler preparedStatementHandler = (PreparedStatementHandler) configuration.newStatementHandler(this, ms, parameter, rowBounds, resultHandler, boundSql);
 
             // 准备语句
             Statement statement = preparedStatementHandler.prepare(connection);

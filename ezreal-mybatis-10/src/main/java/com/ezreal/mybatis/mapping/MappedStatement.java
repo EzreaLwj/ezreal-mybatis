@@ -3,6 +3,8 @@ package com.ezreal.mybatis.mapping;
 import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.session.Configuration;
 
+import java.util.List;
+
 /**
  * 语句映射类
  * @author Ezreal
@@ -31,6 +33,8 @@ public class MappedStatement {
 
     private LanguageDriver lang;
 
+    private List<ResultMap> resultMaps;
+
     public MappedStatement() {
     }
 
@@ -51,6 +55,15 @@ public class MappedStatement {
             assert mappedStatement.configuration != null;
             assert mappedStatement.id != null;
             return mappedStatement;
+        }
+
+        public String id() {
+            return mappedStatement.id;
+        }
+
+        public Builder resultMaps(List<ResultMap> resultMaps) {
+            mappedStatement.resultMaps = resultMaps;
+            return this;
         }
 
     }
@@ -97,5 +110,9 @@ public class MappedStatement {
 
     public LanguageDriver getLang() {
         return lang;
+    }
+
+    public List<ResultMap> getResultMaps() {
+        return resultMaps;
     }
 }

@@ -1,6 +1,7 @@
 package com.ezreal.mybatis.builder.xml;
 
 import com.ezreal.mybatis.builder.BaseBuilder;
+import com.ezreal.mybatis.builder.MapperBuilderAssistant;
 import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.mapping.SqlCommandType;
 import com.ezreal.mybatis.mapping.SqlSource;
@@ -17,14 +18,15 @@ import java.util.Locale;
  * @Date 2024/3/12
  */
 public class XMLStatementBuilder extends BaseBuilder {
-    private String currentNamespace;
+
+    private MapperBuilderAssistant builderAssistant;
 
     private Element element;
 
-    public XMLStatementBuilder(Configuration configuration, Element element, String currentNamespace) {
+    public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, Element element) {
         super(configuration);
         this.element = element;
-        this.currentNamespace = currentNamespace;
+        this.builderAssistant = builderAssistant;
     }
 
     //解析语句(select|insert|update|delete)
@@ -44,6 +46,8 @@ public class XMLStatementBuilder extends BaseBuilder {
     //</select>
     public void parseStatementNode() {
         String id = element.attributeValue("id");
+        // 外部应用 resultMap
+        String resultMap = element.attributeValue("resultMap");
         // 参数类型
         String parameterType = element.attributeValue("parameterType");
         Class<?> parameterTypeClass = resolveAlias(parameterType);
@@ -59,8 +63,13 @@ public class XMLStatementBuilder extends BaseBuilder {
         LanguageDriver langDriver = configuration.getLanguageRegistry().getDriver(langClass);
 
         SqlSource sqlSource = langDriver.createSqlSource(configuration, element, parameterTypeClass);
-        MappedStatement mappedStatement = new MappedStatement.Builder(configuration, currentNamespace + "." + id, sqlCommandType, sqlSource, resultTypeClass).build();
-        // 添加解析SQL
-        configuration.addMappedStatement(mappedStatement);
+        // 添加映射语句
+        builderAssistant.addMappedStatement(id,
+                sqlSource,
+                sqlCommandType,
+                parameterTypeClass,
+                resultMap,
+                resultTypeClass,
+                langDriver);
     }
 }

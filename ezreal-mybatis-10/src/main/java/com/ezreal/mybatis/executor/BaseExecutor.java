@@ -4,6 +4,7 @@ import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.session.Configuration;
 import com.ezreal.mybatis.session.ResultHandler;
+import com.ezreal.mybatis.session.RowBounds;
 import com.ezreal.mybatis.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +34,15 @@ public abstract class BaseExecutor implements Executor {
         this.wrapper = this;
     }
 
-    protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql);
+    protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql);
 
     @Override
-    public <E> List<E> query(MappedStatement mappedStatement, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
+    public <E> List<E> query(MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
         if (closed) {
             throw new RuntimeException("Executor was closed");
         }
 
-        return doQuery(mappedStatement, parameter, resultHandler, boundSql);
+        return doQuery(mappedStatement, parameter, rowBounds, resultHandler, boundSql);
     }
 
     @Override

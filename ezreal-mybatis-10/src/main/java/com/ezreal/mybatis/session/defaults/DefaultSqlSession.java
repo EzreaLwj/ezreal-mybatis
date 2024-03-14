@@ -3,6 +3,7 @@ package com.ezreal.mybatis.session.defaults;
 import com.ezreal.mybatis.executor.Executor;
 import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.session.Configuration;
+import com.ezreal.mybatis.session.RowBounds;
 import com.ezreal.mybatis.session.SqlSession;
 
 import java.lang.reflect.Method;
@@ -42,7 +43,7 @@ public class DefaultSqlSession implements SqlSession {
 
         try {
             MappedStatement mappedStatement = configuration.getMappedStatement(statement);
-            List<T> result = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
+            List<T> result = executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
             return result.get(0);
         } catch (Exception e) {
             e.printStackTrace();

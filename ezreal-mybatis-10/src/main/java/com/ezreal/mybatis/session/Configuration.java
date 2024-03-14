@@ -153,15 +153,11 @@ public class Configuration {
 
     /**
      * 创建结果集处理器
-     *
-     * @param executor        执行器
-     * @param mappedStatement 语句映射
-     * @param boundSql        绑定SQL
-     * @return
      */
-    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
-        return new DefaultResultSetHandler(executor, mappedStatement, boundSql);
+    public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+        return new DefaultResultSetHandler(executor, mappedStatement, resultHandler, rowBounds, boundSql);
     }
+
 
     /**
      * 创建语句映射处理器
@@ -173,8 +169,8 @@ public class Configuration {
      * @param boundSql
      * @return
      */
-    public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
-        return new PreparedStatementHandler(executor, mappedStatement, parameter, resultHandler, boundSql);
+    public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+        return new PreparedStatementHandler(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
     }
 
     public MetaObject newMetaObject(Object object) {
@@ -209,5 +205,9 @@ public class Configuration {
 
     public LanguageDriver getDefaultScriptingLanguageInstance() {
         return languageRegistry.getDefaultDriver();
+    }
+
+    public ObjectFactory getObjectFactory() {
+        return objectFactory;
     }
 }
