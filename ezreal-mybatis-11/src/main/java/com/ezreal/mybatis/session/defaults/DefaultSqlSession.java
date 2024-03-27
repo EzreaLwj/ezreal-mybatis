@@ -9,6 +9,7 @@ import com.ezreal.mybatis.session.SqlSession;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +52,36 @@ public class DefaultSqlSession implements SqlSession {
         }
     }
 
+    @Override
+    public <E> List<E> selectList(String statement, Object parameter) {
+        MappedStatement mappedStatement = configuration.getMappedStatement(statement);
+        try {
+            return executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
+        } catch (Exception e) {
+            throw new RuntimeException("Error querying database.  Cause: " + e);
+        }
+    }
+
+    @Override
+    public int insert(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
+    @Override
+    public int update(String statement, Object parameter) {
+        MappedStatement mappedStatement = configuration.getMappedStatement(statement);
+        try {
+            return executor.update(mappedStatement, parameter);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating database.  Cause: " + e);
+        }
+    }
+
+    @Override
+    public Object delete(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
     private <T> List<T> resultSet2Obj(ResultSet resultSet, Class<?> clazz) {
         List<T> list = new ArrayList<>();
         try {
@@ -88,5 +119,14 @@ public class DefaultSqlSession implements SqlSession {
     @Override
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    public void commit() {
+        try {
+            executor.commit(true);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error committing transaction.  Cause: " + e);
+        }
     }
 }

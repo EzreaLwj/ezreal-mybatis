@@ -1,6 +1,7 @@
 package com.ezreal.mybatis.executor;
 
 import com.ezreal.mybatis.executor.statement.PreparedStatementHandler;
+import com.ezreal.mybatis.executor.statement.StatementHandler;
 import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.session.Configuration;
@@ -28,6 +29,7 @@ public class SimpleExecutor extends BaseExecutor {
     @Override
     protected <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
 
+        Statement statement = null;
         try {
             // 实例化连接
             Connection connection = transaction.getConnection();
@@ -36,7 +38,7 @@ public class SimpleExecutor extends BaseExecutor {
             PreparedStatementHandler preparedStatementHandler = (PreparedStatementHandler) configuration.newStatementHandler(this, ms, parameter, rowBounds, resultHandler, boundSql);
 
             // 准备语句
-            Statement statement = preparedStatementHandler.prepare(connection);
+            statement = preparedStatementHandler.prepare(connection);
 
             // 参数传递
             preparedStatementHandler.parameterize(statement);
@@ -46,6 +48,31 @@ public class SimpleExecutor extends BaseExecutor {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            closeStatement(statement);
         }
+    }
+
+    @Override
+    protected int doUpdate(MappedStatement mappedStatement, Object parameter) throws SQLException {
+
+        Statement stmt = null;
+        try {
+            Configuration configuration = mappedStatement.getConfiguration();
+            StatementHandler statementHandler = configuration.newStatementHandler(this, mappedStatement, parameter, RowBounds.DEFAULT, null, null);
+            stmt = prepareStatement(statementHandler);
+            // 执行update操作
+            return statementHandler.update(stmt);
+        } finally {
+            closeStatement(stmt);
+        }
+
+    }
+
+    private Statement prepareStatement(StatementHandler statementHandler) throws SQLException {
+        Connection connection = transaction.getConnection();
+        Statement statement = statementHandler.prepare(connection);
+        statementHandler.parameterize(statement);
+        return statement;
     }
 }

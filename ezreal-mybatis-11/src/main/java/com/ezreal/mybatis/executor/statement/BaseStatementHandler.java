@@ -39,6 +39,9 @@ public abstract class BaseStatementHandler implements StatementHandler {
         this.executor = executor;
         this.mappedStatement = mappedStatement;
         this.parameterObject = parameterObject;
+        if (boundSql == null) {
+            boundSql = mappedStatement.getSqlSource().getBoundSql(parameterObject);
+        }
         this.boundSql = boundSql;
         this.rowBounds = rowBounds;
         this.configuration = mappedStatement.getConfiguration();

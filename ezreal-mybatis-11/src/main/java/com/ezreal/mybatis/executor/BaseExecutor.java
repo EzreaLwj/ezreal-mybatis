@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -44,6 +45,13 @@ public abstract class BaseExecutor implements Executor {
 
         return doQuery(mappedStatement, parameter, rowBounds, resultHandler, boundSql);
     }
+
+    @Override
+    public int update(MappedStatement mappedStatement, Object parameter) throws SQLException {
+        return doUpdate(mappedStatement, parameter);
+    }
+
+    protected abstract int doUpdate(MappedStatement mappedStatement, Object parameter) throws SQLException;
 
     @Override
     public Transaction getTransaction() {
@@ -85,5 +93,14 @@ public abstract class BaseExecutor implements Executor {
             closed = true;
         }
 
+    }
+
+    protected void closeStatement(Statement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException ignore) {
+            }
+        }
     }
 }

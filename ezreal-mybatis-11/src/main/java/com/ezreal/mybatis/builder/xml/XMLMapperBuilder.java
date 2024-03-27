@@ -64,18 +64,24 @@ public class XMLMapperBuilder extends BaseBuilder {
 
         builderAssistant.setCurrentNameSpace(currentNameSpace);
         // 2.配置select|insert|update|delete
-        buildStatementFromContext(element.elements("select"));
+        buildStatementFromContext(element.elements("select"),
+                element.elements("insert"),
+                element.elements("update"),
+                element.elements("delete"));
     }
 
     /**
      * 解析配置中的SQL标签
      *
-     * @param list
+     * @param lists
      */
-    private void buildStatementFromContext(List<Element> list) {
-        for (Element element : list) {
-            XMLStatementBuilder statementBuilder = new XMLStatementBuilder(configuration, builderAssistant, element);
-            statementBuilder.parseStatementNode();
+    @SafeVarargs
+    private final void buildStatementFromContext(List<Element>... lists) {
+        for (List<Element> list : lists) {
+            for (Element element : list) {
+                XMLStatementBuilder statementBuilder = new XMLStatementBuilder(configuration, builderAssistant, element);
+                statementBuilder.parseStatementNode();
+            }
         }
     }
 }

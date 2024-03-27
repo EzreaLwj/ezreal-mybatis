@@ -39,4 +39,11 @@ public class PreparedStatementHandler extends BaseStatementHandler {
         ps.execute();
         return resultSetHandler.handleResultSets(ps);
     }
+
+    @Override
+    public int update(Statement stmt) throws SQLException {
+        PreparedStatement ps = (PreparedStatement) stmt;
+        ps.execute();
+        return ps.getUpdateCount();
+    }
 }

@@ -30,16 +30,30 @@ public class MapperMethod {
         SqlCommandType type = sqlCommand.getType();
         switch (type) {
 
-            case DELETE:
-                break;
-            case INSERT:
-                break;
-            case UPDATE:
-                break;
-            case SELECT:
+            case DELETE: {
                 Object param = method.convertArgsToSqlCommandParam(args);
-                result = sqlSession.selectOne(sqlCommand.getName(), param);
+                result = sqlSession.delete(sqlCommand.getName(), param);
                 break;
+            }
+            case INSERT: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.insert(sqlCommand.getName(), param);
+                break;
+            }
+            case UPDATE: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.update(sqlCommand.getName(), param);
+                break;
+            }
+            case SELECT: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                if (method.returnsMany) {
+                    result = sqlSession.selectList(sqlCommand.getName(), param);
+                } else {
+                    result = sqlSession.selectOne(sqlCommand.getName(), param);
+                }
+                break;
+            }
             default:
                 throw new RuntimeException("Unknown execution method for: " + sqlCommand.getName());
         }
@@ -73,8 +87,14 @@ public class MapperMethod {
     public static class MethodSignature {
         private final SortedMap<Integer, String> params;
 
+        private final Class<?> returnType;
+
+        private final boolean returnsMany;
+
         public MethodSignature(Configuration configuration, Method method) {
+            this.returnType = method.getReturnType();
             this.params = Collections.unmodifiableSortedMap(getParams(method));
+            this.returnsMany = (configuration.getObjectFactory().isCollection(this.returnType) || this.returnType.isArray());
         }
 
         // 对传入的参数进行校验，从sortedmap中与args数组进行比较
@@ -116,6 +136,7 @@ public class MapperMethod {
 
     /**
      * 参数map，没有相应的key就会报错
+     *
      * @param <V>
      */
     public static class ParamMap<V> extends HashMap<String, V> {

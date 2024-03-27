@@ -40,4 +40,11 @@ public interface StatementHandler {
      * @throws SQLException
      */
     <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException;
+
+    /**
+     * 更新操作
+     * @param stmt
+     * @return
+     */
+    int update(Statement stmt) throws SQLException;
 }

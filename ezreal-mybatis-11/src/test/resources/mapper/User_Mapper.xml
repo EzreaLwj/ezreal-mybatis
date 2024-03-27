@@ -8,4 +8,20 @@
         where id = #{id}
     </select>
 
+    <update id="updateUserInfo" parameterType="com.ezreal.mybaits.test.po.User">
+        UPDATE user
+        SET userName = #{userName}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertUserInfo" parameterType="com.ezreal.mybaits.test.po.User">
+        INSERT INTO user
+            (userId, userName, userHead, createTime, updateTime)
+        VALUES (#{userId}, #{userName}, #{userHead}, now(), now())
+    </insert>
+
+    <delete id="deleteUserInfoByUserId" parameterType="java.lang.String">
+        DELETE FROM user WHERE userId = #{userId}
+    </delete>
+
 </mapper>

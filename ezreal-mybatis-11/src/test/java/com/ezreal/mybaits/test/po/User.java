@@ -10,6 +10,17 @@ public class User {
     private Date createTime;        // 创建时间
     private Date updateTime;        // 更新时间
 
+    private String userName;
+
+    public User() {
+    }
+
+    public User(Long id, String userId, String userName) {
+        this.id = id;
+        this.userId = userId;
+        this.userName = userName;
+    }
+
     public Long getId() {
         return id;
     }
@@ -48,5 +59,13 @@ public class User {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
