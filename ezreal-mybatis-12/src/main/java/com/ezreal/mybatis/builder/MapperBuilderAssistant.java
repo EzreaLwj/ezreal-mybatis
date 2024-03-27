@@ -1,9 +1,6 @@
 package com.ezreal.mybatis.builder;
 
-import com.ezreal.mybatis.mapping.MappedStatement;
-import com.ezreal.mybatis.mapping.ResultMap;
-import com.ezreal.mybatis.mapping.SqlCommandType;
-import com.ezreal.mybatis.mapping.SqlSource;
+import com.ezreal.mybatis.mapping.*;
 import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.session.Configuration;
 
@@ -43,6 +40,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
             if (base.contains(".")) {
                 return base;
             }
+        } else {
+            if (base.startsWith(currentNameSpace + ".")) {
+                return base;
+            }
+            if (base.contains(".")) {
+                throw new RuntimeException("Dots are not allowed in element names, please remove it from " + base);
+            }
         }
         return currentNameSpace + "." + base;
     }
@@ -76,7 +80,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
         resultMap = applyCurrentNameSpace(resultMap, true);
         List<ResultMap> resultMaps = new ArrayList<>();
         if (resultMap != null) {
-            // TODO：暂无Map结果映射配置，本章节不添加此逻辑
+            String[] resultMapNames = resultMap.split(",");
+            for (String resultMapName : resultMapNames) {
+                resultMaps.add(configuration.getResultMap(resultMapName.trim()));
+            }
         } else if (resultType != null){
             /*
              * 通常使用 resultType 即可满足大部分场景
@@ -89,5 +96,17 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
         // 设置结果集映射
         statementBuilder.resultMaps(resultMaps);
+    }
+
+    public ResultMap addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(
+                configuration,
+                id,
+                type,
+                resultMappings);
+
+        ResultMap resultMap = inlineResultMapBuilder.build();
+        configuration.addResultMap(resultMap);
+        return resultMap;
     }
 }

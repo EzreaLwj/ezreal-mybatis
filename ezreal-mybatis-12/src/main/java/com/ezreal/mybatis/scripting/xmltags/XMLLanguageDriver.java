@@ -6,6 +6,7 @@ import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.mapping.SqlSource;
 import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.scripting.defaults.DefaultParameterHandler;
+import com.ezreal.mybatis.scripting.defaults.RawSqlSource;
 import com.ezreal.mybatis.session.Configuration;
 import org.dom4j.Element;
 
@@ -20,6 +21,11 @@ public class XMLLanguageDriver implements LanguageDriver {
     public SqlSource createSqlSource(Configuration configuration, Element script, Class<?> parameterType) {
         XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);
         return builder.parseScriptNode();
+    }
+
+    @Override
+    public SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType) {
+        return new RawSqlSource(configuration, script, parameterType);
     }
 
     @Override

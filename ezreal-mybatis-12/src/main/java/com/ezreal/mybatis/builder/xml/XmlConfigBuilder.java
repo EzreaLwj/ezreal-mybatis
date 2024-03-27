@@ -98,9 +98,15 @@ public class XmlConfigBuilder extends BaseBuilder {
         List<Element> elements = mappers.elements("mapper");
         for (Element e : elements) {
             String resource = e.attributeValue("resource");
-            InputStream inputStream = Resources.getResourceAsStream(resource);
-            XMLMapperBuilder mapperBuilder = new XMLMapperBuilder(inputStream, configuration, resource);
-            mapperBuilder.parse();
+            String mapperClass = e.attributeValue("class");
+            if (resource != null && mapperClass == null) {
+                InputStream inputStream = Resources.getResourceAsStream(resource);
+                XMLMapperBuilder mapperBuilder = new XMLMapperBuilder(inputStream, configuration, resource);
+                mapperBuilder.parse();
+            } else if (resource == null && mapperClass != null) {
+                Class<?> mapperInterface = Resources.classForName(mapperClass);
+                configuration.addMapper(mapperInterface);
+            }
         }
 
     }

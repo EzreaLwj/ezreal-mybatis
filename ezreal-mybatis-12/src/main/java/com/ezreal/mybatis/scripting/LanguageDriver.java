@@ -16,5 +16,7 @@ public interface LanguageDriver {
 
     SqlSource createSqlSource(Configuration configuration, Element object, Class<?> parameterType);
 
+    SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType);
+
     ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);
 }

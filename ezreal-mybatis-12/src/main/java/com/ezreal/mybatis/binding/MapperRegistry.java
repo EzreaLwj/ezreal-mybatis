@@ -1,6 +1,7 @@
 package com.ezreal.mybatis.binding;
 
 import cn.hutool.core.lang.ClassScanner;
+import com.ezreal.mybatis.builder.annotations.MapperAnnotationBuilder;
 import com.ezreal.mybatis.session.Configuration;
 import com.ezreal.mybatis.session.SqlSession;
 
@@ -59,6 +60,11 @@ public class MapperRegistry {
 
             MapperProxyFactory<T> mapperProxyFactory = new MapperProxyFactory<T>(type);
             knownMappers.put(type, mapperProxyFactory);
+
+            // 解析配置
+            MapperAnnotationBuilder parser = new MapperAnnotationBuilder(configuration, type);
+            parser.parse();
+
         }
     }
 

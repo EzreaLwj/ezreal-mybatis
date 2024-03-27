@@ -5,7 +5,9 @@
 <configuration>
 
     <mappers>
-        <mapper resource="mapper/User_Mapper.xml"/>
+<!--        <mapper resource="mapper/User_Mapper.xml"/>-->
+        <mapper class="com.ezreal.mybaits.test.dao.IUserDao"/>
+
     </mappers>
 
     <environments default="development">

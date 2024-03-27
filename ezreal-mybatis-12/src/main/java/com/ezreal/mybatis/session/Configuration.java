@@ -14,6 +14,7 @@ import com.ezreal.mybatis.executor.statement.StatementHandler;
 import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.Environment;
 import com.ezreal.mybatis.mapping.MappedStatement;
+import com.ezreal.mybatis.mapping.ResultMap;
 import com.ezreal.mybatis.reflection.MetaObject;
 import com.ezreal.mybatis.reflection.factory.DefaultObjectFactory;
 import com.ezreal.mybatis.reflection.factory.ObjectFactory;
@@ -75,6 +76,9 @@ public class Configuration {
     protected final Set<String> loadedResources = new HashSet<>();
 
     protected String databaseId;
+
+    // 结果映射，存在Map里
+    protected final Map<String, ResultMap> resultMaps = new HashMap<>();
 
     public Configuration() {
         typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
@@ -209,5 +213,13 @@ public class Configuration {
 
     public ObjectFactory getObjectFactory() {
         return objectFactory;
+    }
+
+    public void addResultMap(ResultMap resultMap) {
+        resultMaps.put(resultMap.getId(), resultMap);
+    }
+
+    public ResultMap getResultMap(String id) {
+        return resultMaps.get(id);
     }
 }
