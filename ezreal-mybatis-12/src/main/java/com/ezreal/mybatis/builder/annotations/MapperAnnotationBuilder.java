@@ -63,8 +63,10 @@ public class MapperAnnotationBuilder {
      * @param method
      */
     private void parseStatement(Method method) {
+        //获取参数类型
         Class<?> parameterTypeClass = getParameterType(method);
         LanguageDriver languageDriver = getLanguageDriver(method);
+        //封装SQL语句
         SqlSource sqlSource = getSqlSourceFromAnnotations(method, parameterTypeClass, languageDriver);
 
         if (sqlSource != null) {
