@@ -5,8 +5,8 @@
 <configuration>
 
     <mappers>
-<!--        <mapper resource="mapper/User_Mapper.xml"/>-->
-        <mapper class="com.ezreal.mybaits.test.dao.IUserDao"/>
+        <mapper resource="mapper/Activity_Mapper.xml"/>
+<!--        <mapper class="com.ezreal.mybaits.test.dao.IUserDao"/>-->
 
     </mappers>
 

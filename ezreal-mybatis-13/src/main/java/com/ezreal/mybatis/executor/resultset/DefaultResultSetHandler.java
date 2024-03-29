@@ -126,11 +126,37 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             final MetaObject metaObject = configuration.newMetaObject(resultObject);
             // 对该对象进行赋值操作
             applyAutomaticMappings(rsw, resultMap, metaObject, null);
+            // Map映射：根据映射类型赋值到字段
+            applyPropertyMappings(rsw, resultMap, metaObject, null);
         }
         return resultObject;
     }
 
-    private boolean applyAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException{
+    private boolean applyPropertyMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException {
+        List<String> mappedColumnNames = rsw.getMappedColumnNames(resultMap, columnPrefix);
+        boolean foundValues = false;
+        List<ResultMapping> propertyMappings = resultMap.getResultMappings();
+        for (ResultMapping propertyMapping : propertyMappings) {
+            final String column = propertyMapping.getColumn();
+            if (column != null && mappedColumnNames.contains(column.toUpperCase(Locale.ENGLISH))) {
+                final TypeHandler<?> typeHandler =  propertyMapping.getTypeHandler();
+                Object value = typeHandler.getResult(rsw.getResultSet(), column);
+
+                final String property = propertyMapping.getProperty();
+                if (value != NO_VALUE && property != null && value != null) {
+                    // 通过反射工具类设置属性值
+                    metaObject.setValue(property, value);
+                    foundValues = true;
+                }
+            }
+
+        }
+        return foundValues;
+    }
+
+    private static final Object NO_VALUE = new Object();
+
+    private boolean applyAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException {
         final List<String> unmappedColumnNames = rsw.getUnMappedColumnNames(resultMap, columnPrefix);
         boolean foundValues = false;
         for (String columnName : unmappedColumnNames) {

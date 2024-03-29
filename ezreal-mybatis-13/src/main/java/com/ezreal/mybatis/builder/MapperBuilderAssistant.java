@@ -1,8 +1,10 @@
 package com.ezreal.mybatis.builder;
 
 import com.ezreal.mybatis.mapping.*;
+import com.ezreal.mybatis.reflection.MetaClass;
 import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.session.Configuration;
+import com.ezreal.mybatis.type.TypeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +86,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
             for (String resultMapName : resultMapNames) {
                 resultMaps.add(configuration.getResultMap(resultMapName.trim()));
             }
-        } else if (resultType != null){
+        } else if (resultType != null) {
             /*
              * 通常使用 resultType 即可满足大部分场景
              * <select id="queryUserInfoById" resultType="cn.bugstack.mybatis.test.po.User">
@@ -99,6 +101,8 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
 
     public ResultMap addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        // 补全ID全路径，如：cn.bugstack.mybatis.test.dao.IActivityDao + activityMap
+        id = applyCurrentNamespace(id, false);
         ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(
                 configuration,
                 id,
@@ -108,5 +112,57 @@ public class MapperBuilderAssistant extends BaseBuilder {
         ResultMap resultMap = inlineResultMapBuilder.build();
         configuration.addResultMap(resultMap);
         return resultMap;
+    }
+
+    public String applyCurrentNamespace(String base, boolean isReference) {
+        if (base == null) {
+            return null;
+        }
+
+        if (isReference) {
+            if (base.contains(".")) return base;
+        } else {
+            if (base.startsWith(currentNameSpace + ".")) {
+                return base;
+            }
+            if (base.contains(".")) {
+                throw new RuntimeException("Dots are not allowed in element names, please remove it from " + base);
+            }
+        }
+
+        return currentNameSpace + "." + base;
+    }
+
+
+    public ResultMapping buildResultMapping(Class<?> resultType, String property, String column, List<ResultFlag> flags) {
+        Class<?> javaTypeClass = resolveResultJavaType(resultType, property, null);
+        TypeHandler<?> typeHandler = resolveTypeHandler(javaTypeClass, null);
+
+        ResultMapping.Builder builder = new ResultMapping.Builder(configuration, property, column, javaTypeClass);
+        builder.typeHandler(typeHandler);
+        builder.flags(flags);
+        return builder.build();
+
+    }
+
+    private Class<?> resolveResultJavaType(Class<?> resultType, String property, Class<?> javaType) {
+        if (javaType == null && property != null) {
+            try {
+                MetaClass metaResultType = MetaClass.forClass(resultType);
+                javaType = metaResultType.getSetterType(property);
+            } catch (Exception ignore) {
+            }
+        }
+        if (javaType == null) {
+            javaType = Object.class;
+        }
+        return javaType;
+    }
+
+    protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
+        if (typeHandlerType == null) {
+            return null;
+        }
+        return typeHandlerRegistry.getMappingTypeHandler(typeHandlerType);
     }
 }

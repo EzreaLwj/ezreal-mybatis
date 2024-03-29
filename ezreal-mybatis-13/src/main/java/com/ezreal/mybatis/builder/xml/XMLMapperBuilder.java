@@ -2,7 +2,11 @@ package com.ezreal.mybatis.builder.xml;
 
 import com.ezreal.mybatis.builder.BaseBuilder;
 import com.ezreal.mybatis.builder.MapperBuilderAssistant;
+import com.ezreal.mybatis.builder.ResultMapResolver;
 import com.ezreal.mybatis.io.Resources;
+import com.ezreal.mybatis.mapping.ResultFlag;
+import com.ezreal.mybatis.mapping.ResultMap;
+import com.ezreal.mybatis.mapping.ResultMapping;
 import com.ezreal.mybatis.session.Configuration;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -10,6 +14,8 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,17 +63,87 @@ public class XMLMapperBuilder extends BaseBuilder {
     //   </select>
     // </mapper>
     private void configurationElement(Element element) {
+        //1.配置namespace
         currentNameSpace = element.attributeValue("namespace");
         if (currentNameSpace.equals("")) {
             throw new RuntimeException("Mapper's namespace cannot be empty");
         }
 
         builderAssistant.setCurrentNameSpace(currentNameSpace);
-        // 2.配置select|insert|update|delete
+        // 2. 解析ResultMap
+        resultMapElements(element.elements("resultMap"));
+
+        // 3.配置select|insert|update|delete
         buildStatementFromContext(element.elements("select"),
                 element.elements("insert"),
                 element.elements("update"),
                 element.elements("delete"));
+    }
+
+    private void resultMapElements(List<Element> list) {
+        for (Element element : list) {
+            try {
+                resultMapElement(element, Collections.emptyList());
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
+    /**
+     * <resultMap id="activityMap" type="cn.bugstack.mybatis.test.po.Activity">
+     *      <id column="id" property="id"/>
+     *      <result column="activity_id" property="activityId"/>
+     *      <result column="activity_name" property="activityName"/>
+     *      <result column="activity_desc" property="activityDesc"/>
+     *      <result column="create_time" property="createTime"/>
+     *      <result column="update_time" property="updateTime"/>
+     * </resultMap>
+     */
+    private ResultMap resultMapElement(Element resultMapNode, List<ResultMapping> additionalResultMappings) {
+        String id = resultMapNode.attributeValue("id");
+        String type = resultMapNode.attributeValue("type");
+        Class<?> resolveClass = resolveClass(type);
+
+        List<Element> resultList = resultMapNode.elements();
+
+        List<ResultMapping> resultMappings = new ArrayList<>();
+        resultMappings.addAll(additionalResultMappings);
+        for (Element result : resultList) {
+            String name = result.getName();
+            List<ResultFlag> flags = new ArrayList<>();
+            if ("id".equals(name)) {
+                flags.add(ResultFlag.ID);
+            }
+
+            resultMappings.add(buildResultMappingFromContext(result, resolveClass, flags));
+        }
+        // 创建结果映射解析器
+        ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, resolveClass, resultMappings);
+        return resultMapResolver.resolve();
+
+    }
+
+    private ResultMapping buildResultMappingFromContext(Element context, Class<?> resultType, List<ResultFlag> flags) {
+
+        String property = context.attributeValue("property");
+        String column = context.attributeValue("column");
+        return builderAssistant.buildResultMapping(resultType, property, column, flags);
+    }
+
+    // 根据别名解析 Class 类型别名注册/事务管理器别名
+    protected Class<?> resolveClass(String alias) {
+        if (alias == null) {
+            return null;
+        }
+        try {
+            return resolveAlias(alias);
+        } catch (Exception e) {
+            throw new RuntimeException("Error resolving class. Cause: " + e, e);
+        }
+    }
+
+    protected Class<?> resolveAlias(String alias) {
+        return typeAliasRegistry.resolveAlias(alias);
     }
 
     /**

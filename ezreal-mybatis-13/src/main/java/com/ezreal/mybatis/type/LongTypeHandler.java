@@ -17,7 +17,7 @@ public class LongTypeHandler extends BaseTypeHandler<Long>{
     }
 
     @Override
-    public Long getResult(ResultSet rs, String columnName) throws SQLException {
+    protected Long getNullableResult(ResultSet rs, String columnName) throws SQLException {
         return rs.getLong(columnName);
     }
 }
