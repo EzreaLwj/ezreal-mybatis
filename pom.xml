@@ -22,6 +22,7 @@
         <module>ezreal-mybatis-11</module>
         <module>ezreal-mybatis-12</module>
         <module>ezreal-mybatis-13</module>
+        <module>ezreal-mybatis-14</module>
     </modules>
 
     <properties>
