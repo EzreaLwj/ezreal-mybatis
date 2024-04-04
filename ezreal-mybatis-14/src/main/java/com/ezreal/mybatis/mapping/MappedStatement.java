@@ -1,5 +1,6 @@
 package com.ezreal.mybatis.mapping;
 
+import com.ezreal.mybatis.executor.keygen.KeyGenerator;
 import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.session.Configuration;
 
@@ -35,7 +36,17 @@ public class MappedStatement {
 
     private List<ResultMap> resultMaps;
 
+    private KeyGenerator keyGenerator;
+
+    private String[] keyProperties;
+
+    private String[] keyColumns;
+
     public MappedStatement() {
+    }
+
+    public BoundSql getBoundSql(Object parameterObject) {
+        return sqlSource.getBoundSql(parameterObject);
     }
 
     public static class Builder {
@@ -66,6 +77,23 @@ public class MappedStatement {
             return this;
         }
 
+        public Builder keyGenerator(KeyGenerator keyGenerator) {
+            mappedStatement.keyGenerator = keyGenerator;
+            return this;
+        }
+
+        public Builder keyProperty(String keyProperty) {
+            mappedStatement.keyProperties = delimitedStringToArray(keyProperty);
+            return this;
+        }
+
+    }
+    private static String[] delimitedStringToArray(String in) {
+        if (in == null || in.trim().length() == 0) {
+            return null;
+        } else {
+            return in.split(",");
+        }
     }
 
     public String getId() {
@@ -114,5 +142,29 @@ public class MappedStatement {
 
     public List<ResultMap> getResultMaps() {
         return resultMaps;
+    }
+
+    public KeyGenerator getKeyGenerator() {
+        return keyGenerator;
+    }
+
+    public void setKeyGenerator(KeyGenerator keyGenerator) {
+        this.keyGenerator = keyGenerator;
+    }
+
+    public String[] getKeyProperties() {
+        return keyProperties;
+    }
+
+    public void setKeyProperties(String[] keyProperties) {
+        this.keyProperties = keyProperties;
+    }
+
+    public String[] getKeyColumns() {
+        return keyColumns;
+    }
+
+    public void setKeyColumns(String[] keyColumns) {
+        this.keyColumns = keyColumns;
     }
 }

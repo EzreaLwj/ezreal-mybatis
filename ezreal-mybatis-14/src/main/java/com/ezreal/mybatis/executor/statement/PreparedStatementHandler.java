@@ -1,6 +1,7 @@
 package com.ezreal.mybatis.executor.statement;
 
 import com.ezreal.mybatis.executor.Executor;
+import com.ezreal.mybatis.executor.keygen.KeyGenerator;
 import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.session.ResultHandler;
@@ -44,6 +45,12 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     public int update(Statement stmt) throws SQLException {
         PreparedStatement ps = (PreparedStatement) stmt;
         ps.execute();
-        return ps.getUpdateCount();
+        int rows = ps.getUpdateCount();
+
+        // 2.执行selectKey语句
+        Object parameterObject = boundSql.getParameterObject();
+        KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+        keyGenerator.processAfter(executor, mappedStatement, ps, parameterObject);
+        return rows;
     }
 }

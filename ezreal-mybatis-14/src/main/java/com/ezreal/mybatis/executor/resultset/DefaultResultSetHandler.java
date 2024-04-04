@@ -204,8 +204,32 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         if (resultType.isInterface() || metaType.hasDefaultConstructor()) {
             // 普通的Bean对象类型
             return objectFactory.create(resultType);
+        } else if (typeHandlerRegistry.hasTypeHandler(resultType)) {
+            return createPrimitiveResultObject(rsw, resultMap, columnPrefix);
         }
         throw new RuntimeException("Do not know how to create an instance of " + resultType);
+    }
+
+    // 简单类型创建
+    private Object createPrimitiveResultObject(ResultSetWrapper rsw, ResultMap resultMap, String columnPrefix) throws SQLException {
+        final Class<?> resultType = resultMap.getType();
+        final String columnName;
+        if (!resultMap.getResultMappings().isEmpty()) {
+            final List<ResultMapping> resultMappingList = resultMap.getResultMappings();
+            final ResultMapping mapping = resultMappingList.get(0);
+            columnName = prependPrefix(mapping.getColumn(), columnPrefix);
+        } else {
+            columnName = rsw.getColumnNames().get(0);
+        }
+        final TypeHandler<?> typeHandler = rsw.getTypeHandler(resultType, columnName);
+        return typeHandler.getResult(rsw.getResultSet(), columnName);
+    }
+
+    private String prependPrefix(String columnName, String prefix) {
+        if (columnName == null || columnName.length() == 0 || prefix == null || prefix.length() == 0) {
+            return columnName;
+        }
+        return prefix + columnName;
     }
 
     private <T> List<T> resultSet2Obj(ResultSet resultSet, Class<?> clazz) {

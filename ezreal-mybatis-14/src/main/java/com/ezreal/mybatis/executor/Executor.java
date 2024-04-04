@@ -23,6 +23,8 @@ public interface Executor {
 
     <E> List<E> query(MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql);
 
+    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException;
+
     Transaction getTransaction();
 
     void commit(boolean require) throws SQLException;

@@ -1,5 +1,6 @@
 package com.ezreal.mybatis.builder;
 
+import com.ezreal.mybatis.executor.keygen.KeyGenerator;
 import com.ezreal.mybatis.mapping.*;
 import com.ezreal.mybatis.reflection.MetaClass;
 import com.ezreal.mybatis.scripting.LanguageDriver;
@@ -62,10 +63,16 @@ public class MapperBuilderAssistant extends BaseBuilder {
                                               Class<?> parameterType,
                                               String resultMap,
                                               Class<?> resultType,
+                                              KeyGenerator keyGenerator,
+                                              String keyProperty,
                                               LanguageDriver lang) {
         // 添加namespace前缀
         id = applyCurrentNameSpace(id, false);
         MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlCommandType, sqlSource, resultType);
+
+        statementBuilder.keyGenerator(keyGenerator);
+        statementBuilder.keyProperty(keyProperty);
+
         // 结果映射，给 MappedStatement#resultMaps
         setStatementResultMap(resultMap, resultType, statementBuilder);
 

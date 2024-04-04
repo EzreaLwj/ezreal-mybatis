@@ -6,6 +6,7 @@ import com.ezreal.mybatis.datasource.pooled.PooledDataSourceFactory;
 import com.ezreal.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
 import com.ezreal.mybatis.executor.Executor;
 import com.ezreal.mybatis.executor.SimpleExecutor;
+import com.ezreal.mybatis.executor.keygen.KeyGenerator;
 import com.ezreal.mybatis.executor.parameter.ParameterHandler;
 import com.ezreal.mybatis.executor.resultset.DefaultResultSetHandler;
 import com.ezreal.mybatis.executor.resultset.ResultSetHandler;
@@ -28,6 +29,7 @@ import com.ezreal.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.ezreal.mybatis.type.TypeAliasRegistry;
 import com.ezreal.mybatis.type.TypeHandlerRegistry;
 
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,6 +47,8 @@ public class Configuration {
      * 事务环境配置
      */
     protected Environment environment;
+
+    protected boolean useGeneratedKeys = false;
 
     /**
      * Mapper注册器
@@ -79,6 +83,8 @@ public class Configuration {
 
     // 结果映射，存在Map里
     protected final Map<String, ResultMap> resultMaps = new HashMap<>();
+
+    protected final Map<String, KeyGenerator> keyGenerators = new HashMap<>();
 
     public Configuration() {
         typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
@@ -222,4 +228,25 @@ public class Configuration {
     public ResultMap getResultMap(String id) {
         return resultMaps.get(id);
     }
+
+    public void addKeyGenerator(String id, KeyGenerator keyGenerator) {
+        keyGenerators.put(id, keyGenerator);
+    }
+
+    public KeyGenerator getKeyGenerator(String id) {
+        return keyGenerators.get(id);
+    }
+
+    public boolean hasKeyGenerator(String id) {
+        return keyGenerators.containsKey(id);
+    }
+
+    public boolean isUseGeneratedKeys() {
+        return useGeneratedKeys;
+    }
+
+    public void setUseGeneratedKeys(boolean useGeneratedKeys) {
+        this.useGeneratedKeys = useGeneratedKeys;
+    }
+
 }

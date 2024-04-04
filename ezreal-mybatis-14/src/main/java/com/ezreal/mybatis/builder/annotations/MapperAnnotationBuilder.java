@@ -6,6 +6,9 @@ import com.ezreal.mybatis.annotations.Select;
 import com.ezreal.mybatis.annotations.Update;
 import com.ezreal.mybatis.binding.MapperMethod;
 import com.ezreal.mybatis.builder.MapperBuilderAssistant;
+import com.ezreal.mybatis.executor.keygen.Jdbc3KeyGenerator;
+import com.ezreal.mybatis.executor.keygen.KeyGenerator;
+import com.ezreal.mybatis.executor.keygen.NoKeyGenerator;
 import com.ezreal.mybatis.mapping.SqlCommandType;
 import com.ezreal.mybatis.mapping.SqlSource;
 import com.ezreal.mybatis.scripting.LanguageDriver;
@@ -72,6 +75,16 @@ public class MapperAnnotationBuilder {
         if (sqlSource != null) {
             final String mappedStatementId = type.getName() + "." + method.getName();
             SqlCommandType sqlCommandType = getSqlCommandType(method);
+
+            // step-14 新增
+            KeyGenerator keyGenerator;
+            String keyProperty = "id";
+            if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
+                keyGenerator = configuration.isUseGeneratedKeys() ? new Jdbc3KeyGenerator() : new NoKeyGenerator();
+            } else {
+                keyGenerator = new NoKeyGenerator();
+            }
+
             boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
             String resultMapId = null;
             if (isSelect) {
@@ -86,6 +99,8 @@ public class MapperAnnotationBuilder {
                     parameterTypeClass,
                     resultMapId,
                     getReturnType(method),
+                    keyGenerator,
+                    keyProperty,
                     languageDriver
             );
         }
