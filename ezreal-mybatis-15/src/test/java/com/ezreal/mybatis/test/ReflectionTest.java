@@ -1,4 +1,4 @@
-package com.ezreal.mybaits.test;
+package com.ezreal.mybatis.test;
 
 import com.alibaba.fastjson.JSON;
 import com.ezreal.mybatis.reflection.MetaObject;

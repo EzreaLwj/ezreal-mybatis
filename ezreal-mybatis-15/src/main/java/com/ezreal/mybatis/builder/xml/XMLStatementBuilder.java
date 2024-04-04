@@ -70,6 +70,7 @@ public class XMLStatementBuilder extends BaseBuilder {
         // 解析<selectKey> step-14 新增
         processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
+        // 构建SqlSource
         SqlSource sqlSource = langDriver.createSqlSource(configuration, element, parameterTypeClass);
 
         // 属性标记【仅对 insert 有用】, MyBatis 会通过 getGeneratedKeys 或者通过 insert 语句的 selectKey 子元素设置它的值 step-14 新增

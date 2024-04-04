@@ -1,8 +1,8 @@
-package com.ezreal.mybaits.test;
+package com.ezreal.mybatis.test;
 
 import com.alibaba.fastjson.JSON;
-import com.ezreal.mybaits.test.dao.IActivityDao;
-import com.ezreal.mybaits.test.po.Activity;
+import com.ezreal.mybatis.test.dao.IActivityDao;
+import com.ezreal.mybatis.test.po.Activity;
 import com.ezreal.mybatis.builder.xml.XmlConfigBuilder;
 import com.ezreal.mybatis.executor.Executor;
 import com.ezreal.mybatis.io.Resources;
@@ -37,31 +37,21 @@ public class ApiTest {
     }
 
     @Test
-    public void test_queryActivityById(){
-        // 1. 获取映射器对象
+    public void test_queryActivityById1() throws IOException {
+        // 1. 从SqlSessionFactory中获取SqlSession
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(Resources.getResourceAsReader("mybatis-config-datasource.xml"));
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+
+        // 2. 获取映射器对象
         IActivityDao dao = sqlSession.getMapper(IActivityDao.class);
-        // 2. 测试验证
-        Activity res = dao.queryActivityById(100001L);
+
+        // 3. 测试验证
+        Activity req = new Activity();
+        req.setActivityId(100001L);
+        Activity res = dao.queryActivityById(req);
         logger.info("测试结果：{}", JSON.toJSONString(res));
     }
 
-    @Test
-    public void test_insert() {
-        // 1. 获取映射器对象
-        IActivityDao dao = sqlSession.getMapper(IActivityDao.class);
-
-        Activity activity = new Activity();
-        activity.setActivityId(10008L);
-        activity.setActivityName("测试活动");
-        activity.setActivityDesc("测试数据插入");
-        activity.setCreator("xiaofuge");
-
-        // 2. 测试验证
-        Integer res = dao.insert(activity);
-        sqlSession.commit();
-
-        logger.info("测试结果：count：{} idx：{}", res, JSON.toJSONString(activity.getId()));
-    }
 
     @Test
     public void test_insert_select() throws IOException {

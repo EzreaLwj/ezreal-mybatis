@@ -1,4 +1,4 @@
-package com.ezreal.mybaits.test.po;
+package com.ezreal.mybatis.test.po;
 
 import java.util.Date;
 
