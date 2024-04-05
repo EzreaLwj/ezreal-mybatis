@@ -35,7 +35,7 @@ public class SimpleExecutor extends BaseExecutor {
             Connection connection = transaction.getConnection();
 
             // 参数化创建语句处理器
-            PreparedStatementHandler preparedStatementHandler = (PreparedStatementHandler) configuration.newStatementHandler(this, ms, parameter, rowBounds, resultHandler, boundSql);
+            StatementHandler preparedStatementHandler = configuration.newStatementHandler(this, ms, parameter, rowBounds, resultHandler, boundSql);
 
             // 准备语句
             statement = preparedStatementHandler.prepare(connection);

@@ -1,5 +1,6 @@
 package com.ezreal.mybatis.executor.statement;
 
+import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.session.ResultHandler;
 
 import java.sql.Connection;
@@ -47,4 +48,7 @@ public interface StatementHandler {
      * @return
      */
     int update(Statement stmt) throws SQLException;
+
+    /** 获取绑定SQL */
+    BoundSql getBoundSql();
 }
