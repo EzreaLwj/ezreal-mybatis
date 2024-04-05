@@ -41,13 +41,12 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> T selectOne(String statement, Object parameter) {
-
-        try {
-            MappedStatement mappedStatement = configuration.getMappedStatement(statement);
-            List<T> result = executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
-            return result.get(0);
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<T> list = this.<T>selectList(statement, parameter);
+        if (list.size() == 1) {
+            return list.get(0);
+        } else if (list.size() > 1) {
+            throw new RuntimeException("Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
+        } else {
             return null;
         }
     }
@@ -56,7 +55,7 @@ public class DefaultSqlSession implements SqlSession {
     public <E> List<E> selectList(String statement, Object parameter) {
         MappedStatement mappedStatement = configuration.getMappedStatement(statement);
         try {
-            return executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
+            return executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER);
         } catch (Exception e) {
             throw new RuntimeException("Error querying database.  Cause: " + e);
         }

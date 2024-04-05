@@ -42,6 +42,8 @@ public class MappedStatement {
 
     private String[] keyColumns;
 
+    private boolean flushCacheRequired;
+
     public MappedStatement() {
     }
 
@@ -166,5 +168,9 @@ public class MappedStatement {
 
     public void setKeyColumns(String[] keyColumns) {
         this.keyColumns = keyColumns;
+    }
+
+    public boolean isFlushCacheRequired() {
+        return flushCacheRequired;
     }
 }

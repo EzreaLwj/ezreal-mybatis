@@ -6,6 +6,7 @@ import com.ezreal.mybatis.io.Resources;
 import com.ezreal.mybatis.mapping.Environment;
 import com.ezreal.mybatis.plugin.Interceptor;
 import com.ezreal.mybatis.session.Configuration;
+import com.ezreal.mybatis.session.LocalCacheScope;
 import com.ezreal.mybatis.transaction.TransactionFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -51,6 +52,8 @@ public class XmlConfigBuilder extends BaseBuilder {
         try {
             // 插件
             pluginElement(root.element("plugins"));
+            // 设置
+            settingsElement(root.element("settings"));
             // 解析环境
             environmentElement(root.element("environments"));
             // 解析映射器
@@ -61,6 +64,12 @@ public class XmlConfigBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * <settings>
+     *     <!--缓存级别：SESSION/STATEMENT-->
+     *     <setting name="localCacheScope" value="SESSION"/>
+     * </settings>
+     */
     private void settingsElement(Element context) {
         if (context == null) {
             return;
@@ -71,7 +80,7 @@ public class XmlConfigBuilder extends BaseBuilder {
         for (Element element : elements) {
             prop.setProperty(element.attributeValue("name"), element.attributeValue("value"));
         }
-        configuration.setLo
+        configuration.setLocalCacheScope(LocalCacheScope.valueOf(prop.getProperty("localCacheScope")));
     }
 
     /**

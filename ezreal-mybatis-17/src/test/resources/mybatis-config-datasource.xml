@@ -4,6 +4,12 @@
 
 <configuration>
 
+    <settings>
+        <!--缓存级别：SESSION/STATEMENT-->
+        <setting name="localCacheScope" value="SESSION"/>
+    </settings>
+
+
     <mappers>
         <mapper resource="mapper/Activity_Mapper.xml"/>
 <!--        <mapper class="com.ezreal.mybaits.test.dao.IUserDao"/>-->

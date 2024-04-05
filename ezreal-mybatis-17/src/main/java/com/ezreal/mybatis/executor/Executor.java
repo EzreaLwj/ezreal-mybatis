@@ -1,5 +1,6 @@
 package com.ezreal.mybatis.executor;
 
+import com.ezreal.mybatis.cache.CacheKey;
 import com.ezreal.mybatis.mapping.BoundSql;
 import com.ezreal.mybatis.mapping.MappedStatement;
 import com.ezreal.mybatis.session.ResultHandler;
@@ -21,7 +22,7 @@ public interface Executor {
 
     int update(MappedStatement mappedStatement, Object parameter) throws SQLException;
 
-    <E> List<E> query(MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql);
+    <E> List<E> query(MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql);
 
     <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException;
 
@@ -32,4 +33,10 @@ public interface Executor {
     void rollback(boolean require) throws SQLException;
 
     void close(boolean forceRollback) throws SQLException;
+
+    // 清理Session缓存
+    void clearLocalCache();
+
+    // 创建缓存 Key
+    CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
 }

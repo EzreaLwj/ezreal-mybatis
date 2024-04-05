@@ -51,6 +51,9 @@ public class Configuration {
 
     protected boolean useGeneratedKeys = false;
 
+    // 缓存机制，默认不配置的情况是 SESSION
+    protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+
     /**
      * Mapper注册器
      */
@@ -262,4 +265,11 @@ public class Configuration {
         interceptorChain.addInterceptor(interceptorInstance);
     }
 
+    public void setLocalCacheScope(LocalCacheScope localCacheScope) {
+        this.localCacheScope = localCacheScope;
+    }
+
+    public LocalCacheScope getLocalCacheScope() {
+        return localCacheScope;
+    }
 }
