@@ -42,4 +42,8 @@ public class BaseBuilder {
             throw new RuntimeException("Error resolving class. Cause: " + e, e);
         }
     }
+
+    protected Boolean booleanValueOf(String value, Boolean defaultValue) {
+        return value == null ? defaultValue : Boolean.valueOf(value);
+    }
 }

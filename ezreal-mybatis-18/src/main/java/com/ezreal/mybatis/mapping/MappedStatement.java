@@ -3,6 +3,7 @@ package com.ezreal.mybatis.mapping;
 import com.ezreal.mybatis.executor.keygen.KeyGenerator;
 import com.ezreal.mybatis.scripting.LanguageDriver;
 import com.ezreal.mybatis.session.Configuration;
+import com.ezreal.mybatis.cache.Cache;
 
 import java.util.List;
 
@@ -43,6 +44,10 @@ public class MappedStatement {
     private String[] keyColumns;
 
     private boolean flushCacheRequired;
+
+    private Cache cache;
+
+    private boolean useCache;
 
     public MappedStatement() {
     }
@@ -86,6 +91,21 @@ public class MappedStatement {
 
         public Builder keyProperty(String keyProperty) {
             mappedStatement.keyProperties = delimitedStringToArray(keyProperty);
+            return this;
+        }
+
+        public Builder cache(Cache cache) {
+            mappedStatement.cache = cache;
+            return this;
+        }
+
+        public Builder flushCacheRequired(boolean flushCacheRequired) {
+            mappedStatement.flushCacheRequired = flushCacheRequired;
+            return this;
+        }
+
+        public Builder useCache(boolean useCache) {
+            mappedStatement.useCache = useCache;
             return this;
         }
 
@@ -172,5 +192,13 @@ public class MappedStatement {
 
     public boolean isFlushCacheRequired() {
         return flushCacheRequired;
+    }
+
+    public boolean isUseCache() {
+        return useCache;
+    }
+
+    public Cache getCache() {
+        return cache;
     }
 }

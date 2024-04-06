@@ -32,11 +32,13 @@ public interface Executor {
 
     void rollback(boolean require) throws SQLException;
 
-    void close(boolean forceRollback) throws SQLException;
+    void close(boolean forceRollback);
 
     // 清理Session缓存
     void clearLocalCache();
 
     // 创建缓存 Key
     CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
+
+    void setExecutorWrapper(Executor executor);
 }

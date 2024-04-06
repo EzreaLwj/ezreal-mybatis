@@ -80,6 +80,7 @@ public class XmlConfigBuilder extends BaseBuilder {
         for (Element element : elements) {
             prop.setProperty(element.attributeValue("name"), element.attributeValue("value"));
         }
+        configuration.setCacheEnabled(booleanValueOf(prop.getProperty("cacheEnabled"), true));
         configuration.setLocalCacheScope(LocalCacheScope.valueOf(prop.getProperty("localCacheScope")));
     }
 

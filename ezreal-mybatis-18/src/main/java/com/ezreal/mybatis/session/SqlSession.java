@@ -90,4 +90,6 @@ public interface SqlSession {
 
     void commit();
 
+    void close();
+
 }

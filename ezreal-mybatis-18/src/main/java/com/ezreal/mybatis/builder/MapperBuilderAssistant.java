@@ -1,5 +1,8 @@
 package com.ezreal.mybatis.builder;
 
+import com.ezreal.mybatis.cache.Cache;
+import com.ezreal.mybatis.cache.decorators.FifoCache;
+import com.ezreal.mybatis.cache.impl.PerpetualCache;
 import com.ezreal.mybatis.executor.keygen.KeyGenerator;
 import com.ezreal.mybatis.mapping.*;
 import com.ezreal.mybatis.reflection.MetaClass;
@@ -9,6 +12,7 @@ import com.ezreal.mybatis.type.TypeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * 构建器助手
@@ -21,6 +25,8 @@ public class MapperBuilderAssistant extends BaseBuilder {
     private String currentNameSpace;
 
     private String resource;
+
+    private Cache currentCache;
 
     public MapperBuilderAssistant(Configuration configuration, String resource) {
         super(configuration);
@@ -63,6 +69,8 @@ public class MapperBuilderAssistant extends BaseBuilder {
                                               Class<?> parameterType,
                                               String resultMap,
                                               Class<?> resultType,
+                                              boolean flushCache,
+                                              boolean useCache,
                                               KeyGenerator keyGenerator,
                                               String keyProperty,
                                               LanguageDriver lang) {
@@ -70,16 +78,60 @@ public class MapperBuilderAssistant extends BaseBuilder {
         id = applyCurrentNameSpace(id, false);
         MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlCommandType, sqlSource, resultType);
 
+        //是否是select语句
+        boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
+
         statementBuilder.keyGenerator(keyGenerator);
         statementBuilder.keyProperty(keyProperty);
 
         // 结果映射，给 MappedStatement#resultMaps
         setStatementResultMap(resultMap, resultType, statementBuilder);
+        setStatementCache(isSelect, flushCache, useCache, currentCache, statementBuilder);
 
         // 添加映射语句
         MappedStatement statement = statementBuilder.build();
         configuration.addMappedStatement(statement);
         return statement;
+    }
+
+    private void setStatementCache(boolean isSelect, boolean flushCache, boolean useCache, Cache cache, MappedStatement.Builder statmentBuilder) {
+        flushCache = valueOrDefault(flushCache, !isSelect);
+        useCache = valueOrDefault(useCache, isSelect);
+        statmentBuilder.flushCacheRequired(flushCache);
+        statmentBuilder.useCache(useCache);
+        statmentBuilder.cache(cache);
+
+    }
+    public Cache useNewCache(Class<? extends Cache> typeClass,
+                             Class<? extends Cache> evictionClass,
+                             Long flushInterval,
+                             Integer size,
+                             boolean readWrite,
+                             boolean blocking,
+                             Properties props) {
+        // 判断为null，则用默认值
+        typeClass = valueOrDefault(typeClass, PerpetualCache.class);
+        evictionClass = valueOrDefault(evictionClass, FifoCache.class);
+
+        // 建造者模式构建 Cache [currentNamespace=cn.bugstack.mybatis.test.dao.IActivityDao]
+        Cache cache = new CacheBuilder(currentNameSpace)
+                .implementation(typeClass)
+                .addDecorator(evictionClass)
+                .clearInterval(flushInterval)
+                .size(size)
+                .readWrite(readWrite)
+                .blocking(blocking)
+                .properties(props)
+                .build();
+
+        //添加缓存
+        configuration.addCache(cache);
+        currentCache = cache;
+        return cache;
+    }
+
+    private <T> T valueOrDefault(T value, T defaultValue) {
+        return value == null ? defaultValue : value;
     }
 
     private void setStatementResultMap(String resultMap,

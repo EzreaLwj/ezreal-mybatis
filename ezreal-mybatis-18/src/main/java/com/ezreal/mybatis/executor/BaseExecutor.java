@@ -191,7 +191,7 @@ public abstract class BaseExecutor implements Executor {
     }
 
     @Override
-    public void close(boolean forceRollback) throws SQLException {
+    public void close(boolean forceRollback) {
         try {
             try {
                 rollback(forceRollback);
@@ -205,6 +205,11 @@ public abstract class BaseExecutor implements Executor {
             closed = true;
         }
 
+    }
+
+    @Override
+    public void setExecutorWrapper(Executor executor) {
+        this.wrapper = wrapper;
     }
 
     protected void closeStatement(Statement statement) {

@@ -128,4 +128,11 @@ public class DefaultSqlSession implements SqlSession {
             throw new RuntimeException("Error committing transaction.  Cause: " + e);
         }
     }
+
+
+    @Override
+    public void close() {
+        // isCommitOrRollbackRequired(false)
+        executor.close(false);
+    }
 }
